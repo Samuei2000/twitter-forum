@@ -162,7 +162,7 @@ defmodule Twitter.Accounts.User do
     |> validate_required([:username])
     |> validate_format(:username, ~r/[A-Za-z0-9_]/, message: "can only contain letters, numbers and underscores")
     |> validate_length(:username, max: 20)
-    |> unsafe_validate_unique(:username, Twittex.Repo)
+    |> unsafe_validate_unique(:username, Twitter.Repo)
     |> unique_constraint(:username)
   end
 end
