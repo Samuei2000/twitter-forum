@@ -32,6 +32,7 @@ defmodule TwitterWeb.UserRegistrationLive do
         </.error>
 
         <.input field={@form[:email]} type="email" label="Email" required />
+        <.input field={@form[:username]} type="text" label="Username" required />
         <.input field={@form[:password]} type="password" label="Password" required />
 
         <:actions>
@@ -77,7 +78,6 @@ defmodule TwitterWeb.UserRegistrationLive do
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do
     form = to_form(changeset, as: "user")
-
     if changeset.valid? do
       assign(socket, form: form, check_errors: false)
     else
