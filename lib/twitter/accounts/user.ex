@@ -36,9 +36,10 @@ defmodule Twitter.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :password, :username])
     |> validate_email(opts)
     |> validate_password(opts)
+    |> validate_username()
   end
 
   defp validate_email(changeset, opts) do
@@ -154,5 +155,14 @@ defmodule Twitter.Accounts.User do
     else
       add_error(changeset, :current_password, "is not valid")
     end
+  end
+
+  defp validate_username(changeset) do
+    changeset
+    |> validate_required([:username])
+    |> validate_format(:username, ~r/[A-Za-z0-9_]/, message: "can only contain letters, numbers and underscores")
+    |> validate_length(:username, max: 20)
+    |> unsafe_validate_unique(:username, Twittex.Repo)
+    |> unique_constraint(:username)
   end
 end
