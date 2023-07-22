@@ -9,7 +9,7 @@ defmodule TwitterWeb.UserSessionController do
   end
 
   def create(conn, %{"_action" => "login"} = params) do
-    create_registered(conn, params, "You are a piece of shit!")
+    create_registered(conn, params, "Welcome back!")
   end
 
   def create(conn, %{"_action" => "password_updated"} = params) do
