@@ -304,6 +304,7 @@ defmodule Twitter.Forum do
 
     |> Ecto.assoc(:posts)
     |> preload(:category)
+    |> preload(:user)
     |> order_by([m], [desc: m.inserted_at, desc: m.id])
     |> Repo.all
 

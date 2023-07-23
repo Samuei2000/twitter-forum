@@ -8,6 +8,8 @@ defmodule Twitter.Accounts.User do
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
     field :username, :string
+
+    has_many :posts, Twitter.Forum.Post
     timestamps()
   end
 

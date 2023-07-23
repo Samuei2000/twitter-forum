@@ -15,10 +15,11 @@ defmodule TwitterWeb.CategoryLive do
           <p><%= post.title %></p>
           <p><%= post.content %></p>
           <p><%= post.user_id %></p>
+          <p><%= post.user.username %></p>
+          <br>
         <% end %>
       <% end %>
     </div>
-    <%= inspect @posts %>
     """
   end
 

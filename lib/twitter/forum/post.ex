@@ -7,9 +7,9 @@ defmodule Twitter.Forum.Post do
     field :likes, :integer
     field :title, :string
     field :views, :integer
-    field :user_id, :id
+    #field :user_id, :id
     #field :category_id, :id
-
+    belongs_to :user,Twitter.Accounts.User
     belongs_to :category,Twitter.Forum.Category
     timestamps()
   end
