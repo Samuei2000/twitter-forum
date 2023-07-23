@@ -3,9 +3,22 @@ defmodule TwitterWeb.CategoryLive do
 
   def render(assigns) do
     ~H"""
-    <h1>Test</h1>
-    <p><%= inspect @posts %></p>
+    <div class="mt-3">
+      <%= if Enum.empty?(@posts) do %>
+        <div class="text-center py-10">
+        <h2 class="text-gray-500 text-2xl">Nothing to see!</h2>
+        <p class="text-gray-400">This user hasn't posted any tweeks yet</p>
+      </div>
 
+      <% else %>
+        <%= for post <- @posts do %>
+          <p><%= post.title %></p>
+          <p><%= post.content %></p>
+          <p><%= post.user_id %></p>
+        <% end %>
+      <% end %>
+    </div>
+    <%= inspect @posts %>
     """
   end
 
