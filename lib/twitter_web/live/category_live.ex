@@ -14,7 +14,7 @@ defmodule TwitterWeb.CategoryLive do
         <%= for post <- @posts do %>
           <p><%= post.title %></p>
           <p><%= post.content %></p>
-          <p><%= post.user_id %></p>
+          <%!-- <p><%= post.user_id %></p> --%>
           <p><%= post.user.username %></p>
           <br>
         <% end %>
