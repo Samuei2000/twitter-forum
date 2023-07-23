@@ -293,4 +293,8 @@ defmodule Twitter.Forum do
   def change_category(%Category{} = category, attrs \\ %{}) do
     Category.changeset(category, attrs)
   end
+
+  def get_category_by_category_name!(category_name) do
+    Repo.get_by!(Category, name: category_name)
+  end
 end
