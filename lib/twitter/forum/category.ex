@@ -5,6 +5,7 @@ defmodule Twitter.Forum.Category do
   schema "categories" do
     field :name, :string
 
+    has_many :posts, Twitter.Forum.Post
     timestamps()
   end
 

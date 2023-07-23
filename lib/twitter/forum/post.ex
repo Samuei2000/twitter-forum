@@ -8,8 +8,9 @@ defmodule Twitter.Forum.Post do
     field :title, :string
     field :views, :integer
     field :user_id, :id
-    field :category_id, :id
+    #field :category_id, :id
 
+    belongs_to :category,Twitter.Forum.Category
     timestamps()
   end
 

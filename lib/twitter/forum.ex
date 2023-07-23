@@ -297,4 +297,27 @@ defmodule Twitter.Forum do
   def get_category_by_category_name!(category_name) do
     Repo.get_by!(Category, name: category_name)
   end
+
+  def list_posts_for_category(%Category{} = category) do
+
+    category
+
+    |> Ecto.assoc(:posts)
+    |> preload(:category)
+    |> order_by([m], [desc: m.inserted_at, desc: m.id])
+    |> Repo.all
+
+  end
+
+  def create_post_for_category(%Category{} = category, attrs \\ %{}) do
+
+    category
+
+    |> Ecto.build_assoc(:posts)
+
+    |> Post.changeset(attrs)
+
+    |> Repo.insert
+
+  end
 end
