@@ -1,2 +1,7 @@
 <.flash_group flash={@flash} />
-<h1>Hello World</h1>
+
+<%= for cate <- @cates do %>
+    <li>
+      <.link href={~p"/#{cate.name}"}><%= cate.name %></.link>
+    </li>
+<% end %>

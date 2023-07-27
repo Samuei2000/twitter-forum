@@ -7,7 +7,7 @@ defmodule TwitterWeb.CategoryLive do
       <%= if Enum.empty?(@posts) do %>
         <div class="text-center py-10">
         <h2 class="text-gray-500 text-2xl">Nothing to see!</h2>
-        <p class="text-gray-400">This user hasn't posted any tweeks yet</p>
+        <p class="text-gray-400">This category is empty.</p>
       </div>
 
       <% else %>
@@ -19,6 +19,7 @@ defmodule TwitterWeb.CategoryLive do
           <br>
         <% end %>
       <% end %>
+      <%!-- <%= inspect(@posts) %> --%>
     </div>
     """
   end
