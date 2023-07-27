@@ -3,6 +3,10 @@ defmodule TwitterWeb.CategoryLive do
 
   def render(assigns) do
     ~H"""
+    <.form for={@form} phx-submit="save">
+      <.input field={@form[:content]} type="textarea" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="4" placeholder="What's happening?" />
+      <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-3" phx-disable-with="Saving...">Post</button>
+    </.form>
     <div class="mt-3">
       <%= if Enum.empty?(@posts) do %>
         <div class="text-center py-10">
@@ -25,8 +29,9 @@ defmodule TwitterWeb.CategoryLive do
   end
 
   def mount(%{"category_name" => category_name}, _session, socket) do
+    form = %Twitter.Forum.Post{} |> Ecto.Changeset.change() |> to_form
     posts = Twitter.Forum.get_category_by_category_name!(category_name)
     |> Twitter.Forum.list_posts_for_category()
-    {:ok, assign(socket,posts: posts)}
+    {:ok, assign(socket,posts: posts, form: form)}
   end
 end
