@@ -4,7 +4,7 @@ defmodule Twitter.Forum.Comment do
 
   schema "comments" do
     field :content, :string
-    field :likes, :integer
+    field :likes, :integer,default: 0
     field :user_id, :id
     field :parent_post_id, :id
     field :parent_comment_id, :id

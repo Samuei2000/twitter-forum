@@ -4,9 +4,9 @@ defmodule Twitter.Forum.Post do
 
   schema "posts" do
     field :content, :string
-    field :likes, :integer
+    field :likes, :integer,default: 0
     field :title, :string
-    field :views, :integer
+    field :views, :integer, default: 0
     #field :user_id, :id
     #field :category_id, :id
     belongs_to :user,Twitter.Accounts.User
