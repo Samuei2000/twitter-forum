@@ -299,9 +299,7 @@ defmodule Twitter.Forum do
   end
 
   def list_posts_for_category(%Category{} = category) do
-
     category
-
     |> Ecto.assoc(:posts)
     |> preload(:category)
     |> preload(:user)
@@ -311,14 +309,9 @@ defmodule Twitter.Forum do
   end
 
   def create_post_for_category(%Category{} = category, attrs \\ %{}) do
-
     category
-
     |> Ecto.build_assoc(:posts)
-
     |> Post.changeset(attrs)
-
     |> Repo.insert
-
   end
 end
