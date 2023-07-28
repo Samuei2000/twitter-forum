@@ -314,4 +314,14 @@ defmodule Twitter.Forum do
     |> Post.changeset(attrs)
     |> Repo.insert
   end
+
+  def create_post_for_user(%Twitter.Accounts.User{}=user, attrs \\ %{},category_id) do
+    with {:ok, post} <-
+      user
+      |> Ecto.build_assoc(:posts, category_id: category_id)
+      |> Twitter.Forum.Post.changeset(attrs)
+      |> Repo.insert do
+        {:ok, Repo.preload(post, :user)}
+    end
+  end
 end
