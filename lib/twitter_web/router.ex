@@ -22,6 +22,7 @@ defmodule TwitterWeb.Router do
 
     get "/", PageController, :home
     live "/:category_name", CategoryLive
+    live "/:category_name/posts/:post_id", PostLive
   end
 
   # Other scopes may use custom stacks.

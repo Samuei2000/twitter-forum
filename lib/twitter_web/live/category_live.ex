@@ -10,21 +10,28 @@ defmodule TwitterWeb.CategoryLive do
         <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-3" phx-disable-with="Saving...">Post</button>
       </.form>
     <% end %>
+
     <div class="mt-3">
       <%= if Enum.empty?(@posts) do %>
         <div class="text-center py-10">
-        <h2 class="text-gray-500 text-2xl">Nothing to see!</h2>
-        <p class="text-gray-400">This category is empty.</p>
-      </div>
+          <h2 class="text-gray-500 text-2xl">Nothing to see!</h2>
+          <p class="text-gray-400">This category is empty.</p>
+        </div>
 
       <% else %>
-        <%= for post <- @posts do %>
-          <p><%= post.title %></p>
-          <p><%= post.content %></p>
-          <%!-- <p><%= post.user_id %></p> --%>
-          <p><%= post.user.username %></p>
-          <br>
-        <% end %>
+        <.table id="users" rows={@posts}>
+          <:col :let={post} label="title"><%= post.title %></:col>
+          <:col :let={post} label="username"><%= post.user.username %></:col>
+          <:col :let={post} label="created at"><%= post.inserted_at %></:col>
+          <:col :let={post} label="likes"><%= post.likes %></:col>
+          <:col :let={post} label="views"><%= post.views %></:col>
+          <:action :let={post}>
+            <.link navigate={~p"/#{@category_name}/posts/#{post.id}"} class="text-sky-500 hover:underline">
+              <%!-- <.button phx-click="view" phx-value-post="#{post.id}">View</.button> --%>
+              View
+            </.link>
+          </:action>
+        </.table>
       <% end %>
       <%!-- <%= inspect(@posts) %> --%>
     </div>
@@ -41,7 +48,7 @@ defmodule TwitterWeb.CategoryLive do
     # user=socket.assigns.current_user
     # IO.inspect(user)
     # IO.inspect(form)
-    {:ok, assign(socket,posts: posts, form: form,category_id: category_id)}
+    {:ok, assign(socket,posts: posts, form: form,category_id: category_id,category_name: category_name)}
   end
 
   def handle_event("save", %{"post"=> post_params}, socket) do
@@ -54,5 +61,12 @@ defmodule TwitterWeb.CategoryLive do
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
+  end
+
+  def handle_event("view", %{"post" => post_id}, socket) do
+    IO.inspect(post_id)
+
+
+    {:noreply, socket}
   end
 end
