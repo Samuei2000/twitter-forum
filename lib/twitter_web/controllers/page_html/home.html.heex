@@ -4,4 +4,5 @@
     <li>
       <.link href={~p"/#{cate.name}"}><%= cate.name %></.link>
     </li>
+    <p>Total posts:<%= length(cate |> Ecto.assoc(:posts) |> Twitter.Repo.all) %></p>
 <% end %>
