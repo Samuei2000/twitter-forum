@@ -27,10 +27,10 @@ defmodule TwitterWeb.CategoryLive do
           <:col :let={post} label="likes"><%= post.likes %></:col>
           <:col :let={post} label="views"><%= post.views %></:col>
           <:action :let={post}>
-            <.link navigate={~p"/#{@category_name}/posts/#{post.id}"} class="text-sky-500 hover:underline">
-              <%!-- <.button phx-click="view" phx-value-post="#{post.id}">View</.button> --%>
-              View
-            </.link>
+            <%!-- <.link navigate={~p"/#{@category_name}/posts/#{post.id}"} class="text-sky-500 hover:underline"> --%>
+              <.button phx-click="view" phx-value-post={post.id}>View</.button>
+              <%!-- View
+            </.link> --%>
           </:action>
         </.table>
       <% end %>
@@ -65,10 +65,9 @@ defmodule TwitterWeb.CategoryLive do
   end
 
   def handle_event("view", %{"post" => post_id}, socket) do
-    IO.inspect(post_id)
-
-
-    {:noreply, socket}
+    post=Twitter.Forum.get_post!(post_id)
+    Twitter.Forum.update_post(post,%{views: post.views+1})
+    {:noreply, push_navigate(socket, to: ~p"/#{socket.assigns.category_name}/posts/#{post_id}")}
   end
 
   def post_inserted_at(%Twitter.Forum.Post{inserted_at: timestamp}) do
