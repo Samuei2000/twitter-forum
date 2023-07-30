@@ -22,7 +22,8 @@ defmodule TwitterWeb.CategoryLive do
         <.table id="users" rows={@posts}>
           <:col :let={post} label="title"><%= post.title %></:col>
           <:col :let={post} label="username"><%= post.user.username %></:col>
-          <:col :let={post} label="created at"><%= post.inserted_at %></:col>
+          <:col :let={post} label="created at"><%= post.inserted_at.year %>-<%= post.inserted_at.month%>-<%= post.inserted_at.day%> <%= post.inserted_at.hour%>:<%= post.inserted_at.minute%>:<%= post.inserted_at.second%></:col>
+          <:col :let={post} label="updated at"><%= post.updated_at.year %>-<%= post.updated_at.month%>-<%= post.updated_at.day%> <%= post.updated_at.hour%>:<%= post.updated_at.minute%>:<%= post.updated_at.second%></:col>
           <:col :let={post} label="likes"><%= post.likes %></:col>
           <:col :let={post} label="views"><%= post.views %></:col>
           <:action :let={post}>
