@@ -10,6 +10,7 @@ defmodule Twitter.Accounts.User do
     field :username, :string
 
     has_many :posts, Twitter.Forum.Post
+    many_to_many :like_post, Twitter.Forum.Post, join_through: "like"
     timestamps()
   end
 
