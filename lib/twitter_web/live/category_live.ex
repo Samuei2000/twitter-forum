@@ -27,10 +27,7 @@ defmodule TwitterWeb.CategoryLive do
           <:col :let={post} label="likes"><%= post.likes %></:col>
           <:col :let={post} label="views"><%= post.views %></:col>
           <:action :let={post}>
-            <%!-- <.link navigate={~p"/#{@category_name}/posts/#{post.id}"} class="text-sky-500 hover:underline"> --%>
               <.button phx-click="view" phx-value-post={post.id}>View</.button>
-              <%!-- View
-            </.link> --%>
           </:action>
         </.table>
       <% end %>
