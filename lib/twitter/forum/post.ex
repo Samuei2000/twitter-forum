@@ -18,7 +18,9 @@ defmodule Twitter.Forum.Post do
   @doc false
   def changeset(post, attrs) do
     post
-    |> cast(attrs, [:title, :content, :views, :likes])
-    |> validate_required([:title, :content, :views, :likes])
+    |> cast(attrs, [:title, :content])
+    |> validate_required([:title, :content])
+    |> validate_length(:title, min: 2, max: 100)
+    |> validate_length(:content, min: 2, max: 1000)
   end
 end

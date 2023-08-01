@@ -4,7 +4,7 @@ defmodule TwitterWeb.CategoryLive do
   def render(assigns) do
     ~H"""
     <%= if assigns.current_user !=nil do%>
-      <.form for={@form} phx-submit="save">
+      <.form for={@form} phx-submit="save" phx-change="validate">
         <.input field={@form[:title]} type="textarea" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="4" placeholder="Your Title" />
         <.input field={@form[:content]} type="textarea" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="4" placeholder="What's happening?" />
         <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-3" phx-disable-with="Saving...">Post</button>
@@ -55,6 +55,7 @@ defmodule TwitterWeb.CategoryLive do
     category_id=socket.assigns.category_id
     case Twitter.Forum.create_post_for_user(current_user,post_params,category_id) do
       {:ok, post} ->
+        socket=update(socket, :form, fn _ -> %Twitter.Forum.Post{} |> Ecto.Changeset.change() |> to_form end)
         {:noreply, update(socket, :posts, fn posts->  [post | posts] end)}
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -65,6 +66,15 @@ defmodule TwitterWeb.CategoryLive do
     post=Twitter.Forum.get_post!(post_id)
     Twitter.Forum.update_post(post,%{views: post.views+1})
     {:noreply, push_navigate(socket, to: ~p"/#{socket.assigns.category_name}/posts/#{post_id}")}
+  end
+
+  def handle_event("validate", %{"post" => volunteer_params}, socket) do
+    changeset =
+      %Twitter.Forum.Post{}
+      |> Twitter.Forum.change_post(volunteer_params)
+      |> Map.put(:action, :validate)
+
+    {:noreply, assign(socket, :form, to_form(changeset))}
   end
 
   def post_inserted_at(%Twitter.Forum.Post{inserted_at: timestamp}) do

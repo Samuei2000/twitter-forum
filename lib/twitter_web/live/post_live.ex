@@ -4,8 +4,10 @@ defmodule TwitterWeb.PostLive do
   def render(assigns) do
     ~H"""
       <%= if @post != nil do %>
-          <h1>title:<%= @post.title %></h1>
-          <p>content:<%= @post.content %></p>
+          <h1><%= @post.title %></h1>
+          <br>
+          <p><%= @post.content %></p>
+          <br>
           <p>likes:<%= @post.likes %></p>
 
         <%= if assigns.current_user !=nil do%>
