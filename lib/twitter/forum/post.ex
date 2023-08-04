@@ -21,7 +21,7 @@ defmodule Twitter.Forum.Post do
     post
     |> cast(attrs, [:title, :content, :views,:likes])
     |> validate_required([:title, :content])
-    |> validate_length(:title, min: 2, max: 100)
-    |> validate_length(:content, min: 2, max: 100)
+    |> validate_length(:title, min: 2, max: 200)
+    |> validate_length(:content, min: 2, max: 200)
   end
 end

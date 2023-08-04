@@ -15,7 +15,7 @@ defmodule TwitterWeb.PostLive do
             <:col :let={comment} label="Comments"><%= comment.content %></:col>
 
             <:action :let={comment}>
-                <.button phx-click="comment" phx-value-post={comment.id}>Comment</.button>
+                <.button phx-click="comment" phx-value-comment={comment.id}>Comment</.button>
             </:action>
           </.table>
           <br>
@@ -67,7 +67,7 @@ defmodule TwitterWeb.PostLive do
     # user=socket.assigns.current_user
     # IO.inspect(user)
     # IO.inspect(form)update(socket, :flag, fn _->  false end)
-    {:ok, assign(socket,post: post,form: form,flag: flag,like_num: post.likes, comments: comments)}
+    {:ok, assign(socket,post: post,form: form,flag: flag,like_num: post.likes, comments: comments,category_name: category_name)}
   end
 
   def handle_event("unlike", _unsigned_params, socket) do
@@ -100,7 +100,8 @@ defmodule TwitterWeb.PostLive do
     {:noreply, Phoenix.Component.update(socket, :comments, fn comments-> [comment | comments] end)}
   end
 
-  def handle_event("comment", unsigned_params, socket) do
-    {:noreply, socket}
+  def handle_event("comment", %{"comment" => comment_params }, socket) do
+    post=socket.assigns.post
+    {:noreply, push_navigate(socket, to: ~p"/#{socket.assigns.category_name}/posts/#{post.id}/comments/#{comment_params}")}
   end
 end
