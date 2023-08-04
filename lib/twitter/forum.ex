@@ -324,4 +324,14 @@ defmodule Twitter.Forum do
         {:ok, Repo.preload(post, :user)}
     end
   end
+
+  def create_comment_for_user(%Twitter.Accounts.User{}=user, attrs \\ %{},post_id) do
+    with {:ok, comment} <-
+    user
+      |> Ecto.build_assoc(:comments,post_id: post_id)
+      |> Twitter.Forum.Comment.changeset(attrs)
+      |> Twitter.Repo.insert do
+        {:ok, Repo.preload(comment, :user)}
+    end
+  end
 end

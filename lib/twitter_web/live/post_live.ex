@@ -9,16 +9,26 @@ defmodule TwitterWeb.PostLive do
           <p><%= @post.content %></p>
           <br>
           <p>likes:<%= @post.likes %></p>
+          <br>
 
+          <.table id="users" rows={@comments}>
+            <:col :let={comment} label="Comments"><%= comment.content %></:col>
+
+            <:action :let={comment}>
+                <.button phx-click="comment" phx-value-post={comment.id}>Comment</.button>
+            </:action>
+          </.table>
+          <br>
         <%= if assigns.current_user !=nil do%>
         <.form for={@form} phx-submit="save">
           <.input field={@form[:content]} type="textarea"placeholder="Your Comment" />
-          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-3" phx-disable-with="Saving...">Comment</button>
+          <button type="submit" class="bg-zinc-900 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded mt-3" phx-disable-with="Saving...">Comment</button>
         </.form>
+        <br>
           <%= if @flag do%>
             <.button phx-click="unlike">UnLike</.button>
           <% else %>
-            <.button phx-click="like">Like</.button>
+            <.button phx-click="like">Like This Post</.button>
           <% end %>
         <% end %>
       <% else %>
@@ -38,6 +48,10 @@ defmodule TwitterWeb.PostLive do
         nil -> nil
         _ -> Twitter.Forum.get_post!(post_id)
       end
+    comments = case post do
+       nil -> nil
+       _ -> post |> Ecto.assoc(:comments) |> Twitter.Repo.all()
+    end
     likes= case socket.assigns.current_user do
       nil -> nil
       _ -> Twitter.Like.check_likes_for_user(socket.assigns.current_user)
@@ -46,12 +60,12 @@ defmodule TwitterWeb.PostLive do
       nil -> nil
       _ -> post in likes
     end
-    IO.inspect(likes)
+    # IO.inspect(likes)
     form = %Twitter.Forum.Comment{} |> Ecto.Changeset.change() |> to_form
     # user=socket.assigns.current_user
     # IO.inspect(user)
     # IO.inspect(form)update(socket, :flag, fn _->  false end)
-    {:ok, assign(socket,post: post,form: form,flag: flag,like_num: post.likes)}
+    {:ok, assign(socket,post: post,form: form,flag: flag,like_num: post.likes, comments: comments)}
   end
 
   def handle_event("unlike", _unsigned_params, socket) do
@@ -74,5 +88,16 @@ defmodule TwitterWeb.PostLive do
 
     socket=update(socket, :post, fn _ ->  Twitter.Forum.get_post!(post_id) end)
     {:noreply, update(socket, :flag, fn _->  true end)}
+  end
+
+  def handle_event("save", %{"comment"=> comment_params}, socket) do
+    user=socket.assigns.current_user
+    post=socket.assigns.post
+    {:ok,comment}=Twitter.Forum.create_comment_for_user(user,comment_params,post.id)
+    {:noreply, update(socket, :comments, fn comments-> [comment | comments] end)}
+  end
+
+  def handle_event("comment", unsigned_params, socket) do
+    {:noreply, socket}
   end
 end

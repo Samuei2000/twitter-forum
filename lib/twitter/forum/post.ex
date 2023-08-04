@@ -12,6 +12,7 @@ defmodule Twitter.Forum.Post do
     belongs_to :user,Twitter.Accounts.User
     belongs_to :category,Twitter.Forum.Category
     many_to_many :like_user, Twitter.Accounts.User, join_through: "like"
+    has_many :comments, Twitter.Forum.Comment
     timestamps()
   end
 
