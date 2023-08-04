@@ -334,4 +334,10 @@ defmodule Twitter.Forum do
         {:ok, Repo.preload(comment, :user)}
     end
   end
+
+  def create_child_for_parent(%Twitter.Forum.Comment{}=parent,%Twitter.Forum.Comment{}=child) do
+    %Twitter.Forum.Relationship{}
+    |> Twitter.Forum.Relationship.changeset(%{parent_comment_id: parent.id,child_comment_id: child.id})
+    |> Repo.insert()
+  end
 end

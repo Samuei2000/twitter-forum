@@ -41,16 +41,18 @@ defmodule TwitterWeb.PostLive do
   end
 
   on_mount {TwitterWeb.UserAuth, :mount_current_user}
-
+  import Ecto.Query
   def mount(%{"category_name" => category_name,"post_id" => post_id}, _session, socket) do
     post=
       case Twitter.Forum.get_category_by_category_name!(category_name) do
         nil -> nil
         _ -> Twitter.Forum.get_post!(post_id)
       end
+    post_id=post.id
     comments = case post do
        nil -> nil
-       _ -> post |> Ecto.assoc(:comments) |> Twitter.Repo.all()
+       _ -> query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.child_comment_id,where: r.parent_comment_id==r.child_comment_id and c.post_id==^post_id
+            Twitter.Repo.all(query)
     end
     likes= case socket.assigns.current_user do
       nil -> nil
@@ -76,8 +78,8 @@ defmodule TwitterWeb.PostLive do
     Twitter.Like.delete_row(row)
 
 
-    socket=update(socket, :post, fn _ ->  Twitter.Forum.get_post!(post_id) end)
-    {:noreply, update(socket, :flag, fn _->  false end)}
+    socket=Phoenix.Component.update(socket, :post, fn _ ->  Twitter.Forum.get_post!(post_id) end)
+    {:noreply, Phoenix.Component.update(socket, :flag, fn _->  false end)}
   end
 
   def handle_event("like", _unsigned_params, socket) do
@@ -86,15 +88,16 @@ defmodule TwitterWeb.PostLive do
     post_id=socket.assigns.post.id
     Twitter.Like.create_row(%{user_id: user_id,post_id: post_id})
 
-    socket=update(socket, :post, fn _ ->  Twitter.Forum.get_post!(post_id) end)
-    {:noreply, update(socket, :flag, fn _->  true end)}
+    socket=Phoenix.Component.update(socket, :post, fn _ ->  Twitter.Forum.get_post!(post_id) end)
+    {:noreply, Phoenix.Component.update(socket, :flag, fn _->  true end)}
   end
 
   def handle_event("save", %{"comment"=> comment_params}, socket) do
     user=socket.assigns.current_user
     post=socket.assigns.post
     {:ok,comment}=Twitter.Forum.create_comment_for_user(user,comment_params,post.id)
-    {:noreply, update(socket, :comments, fn comments-> [comment | comments] end)}
+    Twitter.Forum.create_child_for_parent(comment,comment)
+    {:noreply, Phoenix.Component.update(socket, :comments, fn comments-> [comment | comments] end)}
   end
 
   def handle_event("comment", unsigned_params, socket) do

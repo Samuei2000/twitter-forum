@@ -25,10 +25,17 @@ end
 
 defmodule Twitter.Forum.Relationship do
   use Ecto.Schema
+  import Ecto.Changeset
 
   schema "relationships" do
-    field :comment_id, :id
-    field :parent_id, :id
+    field :child_comment_id, :id
+    field :parent_comment_id, :id
     timestamps()
+  end
+
+  def changeset(row, attrs) do
+    row
+    |> cast(attrs, [:child_comment_id, :parent_comment_id])
+    |> validate_required([:child_comment_id, :parent_comment_id])
   end
 end
