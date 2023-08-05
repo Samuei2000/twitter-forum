@@ -20,6 +20,7 @@ defmodule Twitter.Forum.Comment do
     comment
     |> cast(attrs, [:content, :likes])
     |> validate_required([:content, :likes])
+    |> validate_length(:content, min: 2, max: 200)
   end
 end
 
