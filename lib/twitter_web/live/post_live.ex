@@ -95,9 +95,13 @@ defmodule TwitterWeb.PostLive do
   def handle_event("save", %{"comment"=> comment_params}, socket) do
     user=socket.assigns.current_user
     post=socket.assigns.post
-    {:ok,comment}=Twitter.Forum.create_comment_for_user(user,comment_params,post.id)
-    Twitter.Forum.create_child_for_parent(comment,comment)
-    {:noreply, Phoenix.Component.update(socket, :comments, fn comments-> [comment | comments] end)}
+    case Twitter.Forum.create_comment_for_user(user,comment_params,post.id) do
+      {:ok,comment} -> Twitter.Forum.create_child_for_parent(comment,comment)
+                    {:noreply, Phoenix.Component.update(socket, :comments, fn comments-> [comment | comments] end)}
+      {:error,%Ecto.Changeset{} = changeset} -> {:noreply, assign(socket, form: to_form(changeset))}
+    end
+
+
   end
 
   def handle_event("comment", %{"comment" => comment_params }, socket) do
