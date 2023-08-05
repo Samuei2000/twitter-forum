@@ -51,7 +51,7 @@ defmodule TwitterWeb.PostLive do
     post_id=post.id
     comments = case post do
        nil -> nil
-       _ -> query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.child_comment_id,where: r.parent_comment_id==r.child_comment_id and c.post_id==^post_id
+       _ -> query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.parent_comment_id,where: r.parent_comment_id==r.child_comment_id and c.post_id==^post_id
             Twitter.Repo.all(query)
     end
     likes= case socket.assigns.current_user do
