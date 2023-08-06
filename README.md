@@ -9,6 +9,11 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
+# How to add avatar
+
+  * Download and save the image in "priv/static/images/" directory
+  * Access this image in "localhost:4000/images/" directory
+
 ## Learn more
 
   * Official website: https://www.phoenixframework.org/
