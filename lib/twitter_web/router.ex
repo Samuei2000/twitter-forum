@@ -24,6 +24,7 @@ defmodule TwitterWeb.Router do
     live "/:category_name", CategoryLive
     live "/:category_name/posts/:post_id", PostLive
     live "/:category_name/posts/:post_id/comments/:comment_id", CommentLive
+    live "/users/:username", ProfileLive
   end
 
   # Other scopes may use custom stacks.
