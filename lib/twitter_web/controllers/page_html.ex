@@ -9,7 +9,7 @@ defmodule TwitterWeb.PageHTML do
   def navbar_link(assigns) do
     ~H"""
     <.link
-      class="mb-2 sm:mb-0 sm:mr-5 text-gray-700 hover:text-gray-500"
+      class="mb-2 sm:mb-0 sm:mr-5 text-green-700 hover:text-green-500"
       href={@href}
       method={@method}
     >

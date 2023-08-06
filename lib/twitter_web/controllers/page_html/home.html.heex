@@ -1,8 +1,10 @@
 <.flash_group flash={@flash} />
 
 <%= for cate <- @cates do %>
-    <li>
-      <.link href={~p"/#{cate.name}"}><%= cate.name %></.link>
-    </li>
-    <p>Total posts:<%= length(cate |> Ecto.assoc(:posts) |> Twitter.Repo.all) %></p>
+  <nav class="flex flex-col sm:flex-row">
+    <%!-- <li> --%>
+      <.navbar_link href={~p"/#{cate.name}"} text={cate.name}></.navbar_link>
+    <%!-- </li> --%>
+    <p class="text-blue-700 hover:text-blue-500">Total posts:<%= length(cate |> Ecto.assoc(:posts) |> Twitter.Repo.all) %></p>
+  </nav>
 <% end %>
