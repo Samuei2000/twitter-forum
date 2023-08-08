@@ -12,8 +12,8 @@ defmodule TwitterWeb.ProfileLive do
   def mount(%{"username" => username}, _session, socket) do
 
     user = Accounts.get_user_by_username!(username)
-
-    {:ok, assign(socket, :user, user)}
+    posts= Twitter.Forum.list_posts_for_user(user)
+    {:ok, assign(socket, user: user,posts: posts)}
 
   end
 

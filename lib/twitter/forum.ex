@@ -340,4 +340,12 @@ defmodule Twitter.Forum do
     |> Twitter.Forum.Relationship.changeset(%{parent_comment_id: parent.id,child_comment_id: child.id})
     |> Repo.insert()
   end
+
+  def list_posts_for_user(%Twitter.Accounts.User{} = user) do
+    user
+    |> Ecto.assoc(:posts)
+    |> order_by([m], [desc: m.inserted_at, desc: m.id])
+    |> Repo.all
+
+  end
 end
