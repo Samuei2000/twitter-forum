@@ -27,9 +27,9 @@ defmodule TwitterWeb.Router do
   scope "/", TwitterWeb do
     pipe_through :browser
 
-    live "/:category_name", CategoryLive
-    live "/:category_name/posts/:post_id", PostLive
-    live "/:category_name/posts/:post_id/comments/:comment_id", CommentLive
+    live "/category/:category_name", CategoryLive
+    live "/category/:category_name/posts/:post_id", PostLive
+    live "/category/:category_name/posts/:post_id/comments/:comment_id", CommentLive
   end
 
   scope "/", TwitterWeb do

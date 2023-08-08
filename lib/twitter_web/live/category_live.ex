@@ -1,6 +1,6 @@
 defmodule TwitterWeb.CategoryLive do
   use TwitterWeb, :live_view
-
+  import Phoenix.HTML.Tag, only: [img_tag: 2]
   def render(assigns) do
     ~H"""
     <%= if assigns.current_user !=nil do%>
@@ -19,17 +19,39 @@ defmodule TwitterWeb.CategoryLive do
         </div>
 
       <% else %>
-        <.table id="users" rows={@posts}>
+        <%!-- <.table id="users" rows={@posts}>
           <:col :let={post} label="title"><%= post.title %></:col>
           <:col :let={post} label="username"><%= post.user.username %></:col>
           <:col :let={post} label="created at"><%= post_inserted_at(post) %></:col>
-          <%!-- <:col :let={post} label="updated at"><%= post.updated_at.year %>-<%= post.updated_at.month%>-<%= post.updated_at.day%> <%= post.updated_at.hour%>:<%= post.updated_at.minute%>:<%= post.updated_at.second%></:col> --%>
           <:col :let={post} label="likes"><%= post.likes %></:col>
           <:col :let={post} label="views"><%= post.views %></:col>
           <:action :let={post}>
               <.button phx-click="view" phx-value-post={post.id}>View</.button>
           </:action>
-        </.table>
+        </.table> --%>
+        <%= for post <- @posts do %>
+          <div class="bg-white p-5 rounded-lg shadow mb-3">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center">
+                <div class="ml-3">
+                <%= img_tag ~p"/images/default_avatar.png", class: "h-20 w-20 rounded", alt: "Avatar" %>
+                  <h2 class="font-bold text-lg">@<%= post.user.username %></h2>
+                  <p class="text-gray-400 ml-2"><%= TwitterWeb.CategoryLive.post_inserted_at(post) %></p>
+                  <h2 class="font-bold text-lg"><%= post.title %></h2>
+
+                </div>
+              </div>
+            </div>
+            <p class="mt-3 text-gray-700">
+              <%= post.content %>
+            </p>
+            <div>
+              <.button phx-click="view" phx-value-post={post.id}>View</.button>
+              <h2 class="font-bold text-lg">Views:<%= post.views %></h2>
+              <h2 class="font-bold text-lg">Likes:<%= post.likes %></h2>
+            </div>
+          </div>
+        <% end %>
       <% end %>
       <%!-- <%= inspect(@posts) %> --%>
     </div>
@@ -65,7 +87,7 @@ defmodule TwitterWeb.CategoryLive do
   def handle_event("view", %{"post" => post_id}, socket) do
     post=Twitter.Forum.get_post!(post_id)
     Twitter.Forum.update_post(post,%{views: post.views+1})
-    {:noreply, push_navigate(socket, to: ~p"/#{socket.assigns.category_name}/posts/#{post_id}")}
+    {:noreply, push_navigate(socket, to: ~p"/category/#{socket.assigns.category_name}/posts/#{post_id}")}
   end
 
   def handle_event("validate", %{"post" => volunteer_params}, socket) do

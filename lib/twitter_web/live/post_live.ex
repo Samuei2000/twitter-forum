@@ -11,26 +11,44 @@ defmodule TwitterWeb.PostLive do
           <p>likes:<%= @post.likes %></p>
           <br>
 
-          <.table id="users" rows={@comments}>
+          <%!-- <.table id="users" rows={@comments}>
             <:col :let={comment} label="Comments"><%= comment.content %></:col>
 
             <:action :let={comment}>
                 <.button phx-click="comment" phx-value-comment={comment.id}>Comment</.button>
             </:action>
-          </.table>
-          <br>
+          </.table> --%>
         <%= if assigns.current_user !=nil do%>
-        <.form for={@form} phx-submit="save">
-          <.input field={@form[:content]} type="textarea"placeholder="Your Comment" />
-          <button type="submit" class="bg-zinc-900 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded mt-3" phx-disable-with="Saving...">Comment</button>
-        </.form>
-        <br>
-          <%= if @flag do%>
-            <.button phx-click="unlike">UnLike</.button>
-          <% else %>
-            <.button phx-click="like">Like This Post</.button>
-          <% end %>
+          <.form for={@form} phx-submit="save">
+            <.input field={@form[:content]} type="textarea"placeholder="Your Comment" />
+            <button type="submit" class="bg-zinc-900 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded mt-3" phx-disable-with="Saving...">Comment</button>
+          </.form>
+          <br>
+            <%= if @flag do%>
+              <.button phx-click="unlike">UnLike</.button>
+            <% else %>
+              <.button phx-click="like">Like This Post</.button>
+            <% end %>
         <% end %>
+          <%= for comment <- @comments do %>
+            <div class="bg-white p-5 rounded-lg shadow mb-3">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                  <div class="ml-3">
+                    <h2 class="font-bold text-lg">@<%= comment.user.username %></h2>
+                    <p class="text-gray-400 ml-2"><%= comment_inserted_at(comment) %></p>
+
+                  </div>
+                </div>
+              </div>
+              <p class="mt-3 text-gray-700">
+                <%= comment.content %>
+              </p>
+              <.button phx-click="comment" phx-value-comment={comment.id}>Comment</.button>
+            </div>
+          <% end %>
+          <br>
+
       <% else %>
         <div class="text-center py-10">
           <h2 class="text-gray-500 text-2xl">Nothing to see!</h2>
@@ -52,6 +70,7 @@ defmodule TwitterWeb.PostLive do
     comments = case post do
        nil -> nil
        _ -> query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.parent_comment_id,where: r.parent_comment_id==r.child_comment_id and c.post_id==^post_id
+            query =query |> preload(:user)
             Twitter.Repo.all(query)
     end
     likes= case socket.assigns.current_user do
@@ -106,6 +125,12 @@ defmodule TwitterWeb.PostLive do
 
   def handle_event("comment", %{"comment" => comment_params }, socket) do
     post=socket.assigns.post
-    {:noreply, push_navigate(socket, to: ~p"/#{socket.assigns.category_name}/posts/#{post.id}/comments/#{comment_params}")}
+    {:noreply, push_navigate(socket, to: ~p"/category/#{socket.assigns.category_name}/posts/#{post.id}/comments/#{comment_params}")}
+  end
+
+  def comment_inserted_at(%Twitter.Forum.Comment{inserted_at: timestamp}) do
+
+    Calendar.strftime(timestamp, "%m/%d/%Y %I:%M%p")
+
   end
 end

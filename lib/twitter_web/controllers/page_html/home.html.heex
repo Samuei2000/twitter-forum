@@ -3,7 +3,7 @@
 <%= for cate <- @cates do %>
   <nav class="flex flex-col sm:flex-row">
     <%!-- <li> --%>
-      <.navbar_link href={~p"/#{cate.name}"} text={cate.name} />
+      <.navbar_link href={~p"/category/#{cate.name}"} text={cate.name} />
     <%!-- </li> --%>
     <p class="text-blue-700 hover:text-blue-500">Total posts:<%= length(cate |> Ecto.assoc(:posts) |> Twitter.Repo.all) %></p>
   </nav>
