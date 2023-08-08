@@ -31,5 +31,18 @@
 
   </div>
 <% else %>
-<p class="mt-1 text-gray-500"><%= length(@posts) %> posts</p>
+  <%= for post <- @posts do %>
+    <div class="bg-white p-5 rounded-lg shadow mb-3">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center">
+          <div class="ml-3">
+            <h2 class="font-bold text-lg">@<%= @user.username %></h2>
+          </div>
+        </div>
+      </div>
+      <p class="mt-3 text-gray-700">
+        <%= post.content %>
+      </p>
+    </div>
+  <% end %>
 <% end %>
