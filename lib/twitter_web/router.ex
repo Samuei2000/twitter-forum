@@ -21,10 +21,21 @@ defmodule TwitterWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+  end
+
+  scope "/", TwitterWeb do
+    pipe_through :browser
+
     live "/:category_name", CategoryLive
     live "/:category_name/posts/:post_id", PostLive
     live "/:category_name/posts/:post_id/comments/:comment_id", CommentLive
-    live "/users/:username", ProfileLive
+  end
+
+  scope "/", TwitterWeb do
+    pipe_through :browser
+
+    live "/user/:username", ProfileLive
   end
 
   # Other scopes may use custom stacks.
