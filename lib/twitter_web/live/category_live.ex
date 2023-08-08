@@ -49,6 +49,7 @@ defmodule TwitterWeb.CategoryLive do
               <.button phx-click="view" phx-value-post={post.id}>View</.button>
               <h2 class="font-bold text-lg">Views:<%= post.views %></h2>
               <h2 class="font-bold text-lg">Likes:<%= post.likes %></h2>
+              <h2 class="font-bold text-lg">Comments:<%= length(post.comments) %></h2>
             </div>
           </div>
         <% end %>
