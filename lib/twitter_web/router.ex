@@ -97,4 +97,10 @@ defmodule TwitterWeb.Router do
       live "/users/confirm", UserConfirmationInstructionsLive, :new
     end
   end
+  scope "/", TwitterWeb do
+    pipe_through :browser
+
+    get "/*path", PageController, :index
+
+  end
 end

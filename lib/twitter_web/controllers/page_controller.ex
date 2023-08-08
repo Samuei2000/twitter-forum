@@ -7,4 +7,8 @@ defmodule TwitterWeb.PageController do
     cates=from(Twitter.Forum.Category) |> Twitter.Repo.all()
     render(conn, :home,cates: cates)
   end
+
+  def index(conn, _params) do
+    render(conn, :fof)
+  end
 end
