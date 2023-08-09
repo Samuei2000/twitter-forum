@@ -4,9 +4,21 @@ defmodule TwitterWeb.CommentLive do
 
   def render(assigns) do
     ~H"""
-    <%= for cate <- @child_comments do %>
-      <p><%= cate.content %></p>
-      <br>
+    <%= for comment <- @child_comments do %>
+    <div class="bg-white p-5 rounded-lg shadow mb-3">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                  <div class="ml-3">
+                    <h2 class="font-bold text-lg">@<%= comment.user.username %></h2>
+                    <p class="text-gray-400 ml-2"><%= comment_inserted_at(comment) %></p>
+
+                  </div>
+                </div>
+              </div>
+              <p class="mt-3 text-gray-700">
+                <%= comment.content %>
+              </p>
+      </div>
     <% end %>
     <%= if assigns.current_user !=nil do%>
       <.form for={@form} phx-submit="save">
@@ -25,6 +37,7 @@ defmodule TwitterWeb.CommentLive do
     child_comments = case parent_comment do
       nil -> nil
       _ -> query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.child_comment_id,where: r.parent_comment_id==^parent_comment.id and r.parent_comment_id != r.child_comment_id
+          query = query |> preload(:user)
            Twitter.Repo.all(query)
     end
     post=Twitter.Forum.get_post!(post_id)
@@ -43,6 +56,11 @@ defmodule TwitterWeb.CommentLive do
       {:error, %Ecto.Changeset{} = changeset} ->
           {:noreply, assign(socket, form: to_form(changeset))}
     end
+
+  end
+  def comment_inserted_at(%Twitter.Forum.Comment{inserted_at: timestamp}) do
+
+    Calendar.strftime(timestamp, "%m/%d/%Y %I:%M%p")
 
   end
 end

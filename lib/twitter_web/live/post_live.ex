@@ -4,9 +4,9 @@ defmodule TwitterWeb.PostLive do
   def render(assigns) do
     ~H"""
       <%= if @post != nil do %>
-          <h1><%= @post.title %></h1>
+          <h1>Post Title:<%= @post.title %></h1>
           <br>
-          <p><%= @post.content %></p>
+          <p>Post Content:<%= @post.content %></p>
           <br>
           <p>likes:<%= @post.likes %></p>
           <br>
