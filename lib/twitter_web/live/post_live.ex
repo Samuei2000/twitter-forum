@@ -114,8 +114,10 @@ defmodule TwitterWeb.PostLive do
     user=socket.assigns.current_user
     post=socket.assigns.post
     case Twitter.Forum.create_comment_for_user(user,comment_params,post.id) do
-      {:ok,comment} -> Twitter.Forum.create_child_for_parent(comment,comment)
-                    {:noreply, Phoenix.Component.update(socket, :comments, fn comments-> [comment | comments] end)}
+      {:ok,comment} ->
+        Twitter.Forum.create_child_for_parent(comment,comment)
+        socket=Phoenix.Component.update(socket, :form, fn _ -> %Twitter.Forum.Comment{} |> Ecto.Changeset.change() |> to_form end)
+        {:noreply, Phoenix.Component.update(socket, :comments, fn comments-> [comment | comments] end)}
       {:error,%Ecto.Changeset{} = changeset} -> {:noreply, assign(socket, form: to_form(changeset))}
     end
 
