@@ -298,6 +298,10 @@ defmodule Twitter.Forum do
     Repo.get_by!(Category, name: category_name)
   end
 
+  def get_category_by_category_name(category_name) do
+    Repo.get_by(Category, name: category_name)
+  end
+
   def list_posts_for_category(%Category{} = category) do
     category
     |> Ecto.assoc(:posts)

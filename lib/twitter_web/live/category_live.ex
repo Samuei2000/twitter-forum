@@ -62,14 +62,14 @@ defmodule TwitterWeb.CategoryLive do
   on_mount {TwitterWeb.UserAuth, :mount_current_user}
 
   def mount(%{"category_name" => category_name}, _session, socket) do
-    form = %Twitter.Forum.Post{} |> Ecto.Changeset.change() |> to_form
-    posts = Twitter.Forum.get_category_by_category_name!(category_name)
-      |> Twitter.Forum.list_posts_for_category()
-    category_id= Twitter.Forum.get_category_by_category_name!(category_name).id
-    # user=socket.assigns.current_user
-    # IO.inspect(user)
-    # IO.inspect(form)
-    {:ok, assign(socket,posts: posts, form: form,category_id: category_id,category_name: category_name)}
+
+    case Twitter.Forum.get_category_by_category_name(category_name) do
+      nil -> {:ok, push_navigate(socket, to: "/*path")}
+      category -> posts= category |> Twitter.Forum.list_posts_for_category()
+                  form = %Twitter.Forum.Post{} |> Ecto.Changeset.change() |> to_form
+                  category_id= category.id
+                  {:ok, assign(socket,posts: posts, form: form,category_id: category_id,category_name: category_name)}
+    end
   end
 
   def handle_event("save", %{"post"=> post_params}, socket) do
