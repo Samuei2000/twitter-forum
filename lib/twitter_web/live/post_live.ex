@@ -61,32 +61,31 @@ defmodule TwitterWeb.PostLive do
   on_mount {TwitterWeb.UserAuth, :mount_current_user}
   import Ecto.Query
   def mount(%{"category_name" => category_name,"post_id" => post_id}, _session, socket) do
-    post=
-      case Twitter.Forum.get_category_by_category_name!(category_name) do
-        nil -> nil
-        _ -> Twitter.Forum.get_post!(post_id)
-      end
-    post_id=post.id
-    comments = case post do
-       nil -> nil
-       _ -> query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.parent_comment_id,where: r.parent_comment_id==r.child_comment_id and c.post_id==^post_id
-            query =query |> preload(:user)
-            Twitter.Repo.all(query)
+    case Twitter.Forum.get_category_by_category_name(category_name) do
+      nil -> {:ok, push_navigate(socket, to: "/*path")}
+      category -> posts= Twitter.Forum.list_posts_for_category(%Twitter.Forum.Category{} = category)
+                  posts_id= Enum.map(posts,fn x->x.id end)
+                  {post_real_id, ""}=Integer.parse(post_id)
+                  case post_real_id in posts_id do
+                    false ->
+                      {:ok, push_navigate(socket, to: "/*path")}
+                    true -> post= Twitter.Forum.get_post!(post_id)
+                            query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.parent_comment_id,where: r.parent_comment_id==r.child_comment_id and c.post_id==^post_id
+                            query =query |> preload(:user)
+                            comments=Twitter.Repo.all(query)
+                            likes= case socket.assigns.current_user do
+                              nil -> nil
+                              _ -> Twitter.Like.check_likes_for_user(socket.assigns.current_user)
+                            end
+                            flag= case likes do
+                              nil -> nil
+                              _ -> post in likes
+                            end
+                            form = %Twitter.Forum.Comment{} |> Ecto.Changeset.change() |> to_form
+                            {:ok, assign(socket,post: post,form: form,flag: flag,like_num: post.likes, comments: comments,category_name: category_name)}
+                  end
     end
-    likes= case socket.assigns.current_user do
-      nil -> nil
-      _ -> Twitter.Like.check_likes_for_user(socket.assigns.current_user)
-    end
-    flag= case likes do
-      nil -> nil
-      _ -> post in likes
-    end
-    # IO.inspect(likes)
-    form = %Twitter.Forum.Comment{} |> Ecto.Changeset.change() |> to_form
-    # user=socket.assigns.current_user
-    # IO.inspect(user)
-    # IO.inspect(form)update(socket, :flag, fn _->  false end)
-    {:ok, assign(socket,post: post,form: form,flag: flag,like_num: post.likes, comments: comments,category_name: category_name)}
+
   end
 
   def handle_event("unlike", _unsigned_params, socket) do

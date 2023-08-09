@@ -326,7 +326,7 @@ defmodule Twitter.Forum do
       |> Ecto.build_assoc(:posts, category_id: category_id)
       |> Twitter.Forum.Post.changeset(attrs)
       |> Repo.insert do
-        {:ok, Repo.preload(post, :user)}
+        {:ok, Repo.preload(post, [:user, :comments])}
     end
   end
 
