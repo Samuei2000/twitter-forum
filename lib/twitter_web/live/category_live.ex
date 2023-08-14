@@ -19,16 +19,6 @@ defmodule TwitterWeb.CategoryLive do
         </div>
 
       <% else %>
-        <%!-- <.table id="users" rows={@posts}>
-          <:col :let={post} label="title"><%= post.title %></:col>
-          <:col :let={post} label="username"><%= post.user.username %></:col>
-          <:col :let={post} label="created at"><%= post_inserted_at(post) %></:col>
-          <:col :let={post} label="likes"><%= post.likes %></:col>
-          <:col :let={post} label="views"><%= post.views %></:col>
-          <:action :let={post}>
-              <.button phx-click="view" phx-value-post={post.id}>View</.button>
-          </:action>
-        </.table> --%>
         <%= for post <- @posts do %>
           <div class="bg-white p-5 rounded-lg shadow mb-3">
             <div class="flex justify-between items-center">
@@ -54,7 +44,6 @@ defmodule TwitterWeb.CategoryLive do
           </div>
         <% end %>
       <% end %>
-      <%!-- <%= inspect(@posts) %> --%>
     </div>
     """
   end
@@ -74,7 +63,7 @@ defmodule TwitterWeb.CategoryLive do
 
   def handle_event("save", %{"post"=> post_params}, socket) do
     current_user = socket.assigns.current_user
-    # IO.inspect(post_params)
+
     category_id=socket.assigns.category_id
     case Twitter.Forum.create_post_for_user(current_user,post_params,category_id) do
       {:ok, post} ->
