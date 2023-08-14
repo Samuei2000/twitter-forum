@@ -326,6 +326,7 @@ defmodule Twitter.Forum do
       |> Ecto.build_assoc(:posts, category_id: category_id)
       |> Twitter.Forum.Post.changeset(attrs)
       |> Repo.insert do
+        broadcast({:post_created,Repo.preload(post, [:user, :comments])})
         {:ok, Repo.preload(post, [:user, :comments])}
     end
   end
@@ -352,5 +353,13 @@ defmodule Twitter.Forum do
     |> order_by([m], [desc: m.inserted_at, desc: m.id])
     |> Repo.all
 
+  end
+
+  def subscribe do
+    Phoenix.PubSub.subscribe(Twitter.PubSub,"posts")
+  end
+
+  def broadcast(message) do
+    Phoenix.PubSub.broadcast(Twitter.PubSub,"posts",message)
   end
 end

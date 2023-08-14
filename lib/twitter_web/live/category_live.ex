@@ -11,16 +11,16 @@ defmodule TwitterWeb.CategoryLive do
       </.form>
     <% end %>
 
-    <div class="mt-3">
-      <%= if Enum.empty?(@posts) do %>
+    <div class="mt-3" id="posts" phx-update="stream">
+      <%= if @empty do %>
         <div class="text-center py-10">
           <h2 class="text-gray-500 text-2xl">Nothing to see!</h2>
           <p class="text-gray-400">This category is empty.</p>
         </div>
 
       <% else %>
-        <%= for post <- @posts do %>
-          <div class="bg-white p-5 rounded-lg shadow mb-3">
+        <%= for {post_id,post} <- @streams.posts do %>
+          <div class="bg-white p-5 rounded-lg shadow mb-3" id={post_id}>
             <div class="flex justify-between items-center">
               <div class="flex items-center">
                 <div class="ml-3">
@@ -51,13 +51,23 @@ defmodule TwitterWeb.CategoryLive do
   on_mount {TwitterWeb.UserAuth, :mount_current_user}
 
   def mount(%{"category_name" => category_name}, _session, socket) do
+    if connected?(socket) do
+      Twitter.Forum.subscribe()
+    end
 
     case Twitter.Forum.get_category_by_category_name(category_name) do
       nil -> {:ok, push_navigate(socket, to: "/*path")}
       category -> posts= category |> Twitter.Forum.list_posts_for_category()
                   form = %Twitter.Forum.Post{} |> Ecto.Changeset.change() |> to_form
                   category_id= category.id
-                  {:ok, assign(socket,posts: posts, form: form,category_id: category_id,category_name: category_name)}
+                  empty = Enum.empty?(posts)
+                  socket=socket
+                    |> stream(:posts, posts)
+                    |> assign(:form, form)
+                    |> assign(:category_id, category_id)
+                    |> assign(:category_name, category_name)
+                    |> assign(:empty, empty)
+                  {:ok, socket}
     end
   end
 
@@ -68,7 +78,8 @@ defmodule TwitterWeb.CategoryLive do
     case Twitter.Forum.create_post_for_user(current_user,post_params,category_id) do
       {:ok, post} ->
         socket=update(socket, :form, fn _ -> %Twitter.Forum.Post{} |> Ecto.Changeset.change() |> to_form end)
-        {:noreply, update(socket, :posts, fn posts->  [post | posts] end)}
+        # socket=stream_insert(socket, :posts, post, at: 0)
+        {:noreply, socket}
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
@@ -93,5 +104,9 @@ defmodule TwitterWeb.CategoryLive do
 
     Calendar.strftime(timestamp, "%m/%d/%Y %I:%M%p")
 
+  end
+
+  def handle_info({:post_created,post}, socket) do
+    {:noreply, stream_insert(socket,:posts, post,at: 0)}
   end
 end
