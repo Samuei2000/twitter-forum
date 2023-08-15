@@ -11,7 +11,7 @@ defmodule TwitterWeb.CategoryLive do
       </.form>
     <% end %>
 
-    <div class="mt-3" id="posts" phx-update="stream">
+
       <%= if @empty do %>
         <div class="text-center py-10">
           <h2 class="text-gray-500 text-2xl">Nothing to see!</h2>
@@ -19,32 +19,33 @@ defmodule TwitterWeb.CategoryLive do
         </div>
 
       <% else %>
-        <%= for {post_id,post} <- @streams.posts do %>
-          <div class="bg-white p-5 rounded-lg shadow mb-3" id={post_id}>
-            <div class="flex justify-between items-center">
-              <div class="flex items-center">
-                <div class="ml-3">
-                <%= img_tag ~p"/images/default_avatar.png", class: "h-20 w-20 rounded", alt: "Avatar" %>
-                  <h2 class="font-bold text-lg">@<%= post.user.username %></h2>
-                  <p class="text-gray-400 ml-2"><%= TwitterWeb.CategoryLive.post_inserted_at(post) %></p>
-                  <h2 class="font-bold text-lg"><%= post.title %></h2>
+        <div class="mt-3" id="posts" phx-update="stream">
+          <%= for {post_id,post} <- @streams.posts do %>
+            <div class="bg-white p-5 rounded-lg shadow mb-3" id={post_id}>
+              <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                  <div class="ml-3">
+                  <%= img_tag ~p"/images/default_avatar.png", class: "h-20 w-20 rounded", alt: "Avatar" %>
+                    <h2 class="font-bold text-lg">@<%= post.user.username %></h2>
+                    <p class="text-gray-400 ml-2"><%= TwitterWeb.CategoryLive.post_inserted_at(post) %></p>
+                    <h2 class="font-bold text-lg"><%= post.title %></h2>
 
+                  </div>
                 </div>
               </div>
+              <p class="mt-3 text-gray-700">
+                <%= post.content %>
+              </p>
+              <div>
+                <.button phx-click="view" phx-value-post={post.id}>View</.button>
+                <h2 class="font-bold text-lg">Views:<%= post.views %></h2>
+                <h2 class="font-bold text-lg">Likes:<%= post.likes %></h2>
+                <h2 class="font-bold text-lg">Comments:<%= length(post.comments) %></h2>
+              </div>
             </div>
-            <p class="mt-3 text-gray-700">
-              <%= post.content %>
-            </p>
-            <div>
-              <.button phx-click="view" phx-value-post={post.id}>View</.button>
-              <h2 class="font-bold text-lg">Views:<%= post.views %></h2>
-              <h2 class="font-bold text-lg">Likes:<%= post.likes %></h2>
-              <h2 class="font-bold text-lg">Comments:<%= length(post.comments) %></h2>
-            </div>
-          </div>
-        <% end %>
+          <% end %>
+        </div>
       <% end %>
-    </div>
     """
   end
 
@@ -78,6 +79,7 @@ defmodule TwitterWeb.CategoryLive do
     case Twitter.Forum.create_post_for_user(current_user,post_params,category_id) do
       {:ok, post} ->
         socket=update(socket, :form, fn _ -> %Twitter.Forum.Post{} |> Ecto.Changeset.change() |> to_form end)
+        socket=update(socket, :empty, fn _ -> false end)
         # socket=stream_insert(socket, :posts, post, at: 0)
         {:noreply, socket}
       {:error, %Ecto.Changeset{} = changeset} ->
