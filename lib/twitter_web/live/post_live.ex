@@ -168,6 +168,13 @@ defmodule TwitterWeb.PostLive do
       {:error,%Ecto.Changeset{} = changeset} -> {:noreply, assign(socket, post_form: to_form(changeset))}
     end
   end
+
+  def handle_event("delete", _params, socket) do
+    post=socket.assigns.post
+    case Twitter.Forum.delete_post(post) do
+      {:ok,%Twitter.Forum.Post{}=deleted_post} -> {:noreply, push_navigate(socket, to: ~p"/category/#{socket.assigns.category_name}")}
+    end
+  end
   def comment_inserted_at(%Twitter.Forum.Comment{inserted_at: timestamp}) do
 
     Calendar.strftime(timestamp, "%m/%d/%Y %I:%M%p")
