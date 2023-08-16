@@ -3,51 +3,63 @@ defmodule TwitterWeb.PostLive do
 
   def render(assigns) do
     ~H"""
+
       <%= if @post != nil do %>
-          <h1>Post Title:<%= @post.title %></h1>
-          <br>
-          <p>Post Content:<%= @post.content %></p>
-          <br>
-          <p>likes:<%= @post.likes %></p>
-          <br>
+        <h1>Post Title:<%= @post.title %></h1>
+        <br>
+        <p>Post Content:<%= @post.content %></p>
+        <br>
+        <p>likes:<%= @post.likes %></p>
 
-          <%!-- <.table id="users" rows={@comments}>
-            <:col :let={comment} label="Comments"><%= comment.content %></:col>
+        <%= if @post.user_id == assigns.current_user.id do %>
+          <.button phx-click="delete">Delete</.button>
+          <%= if @edit_flag==true do %>
+            <.form for={@post_form} phx-submit="editpost">
+              <.input field={@post_form[:title]} type="textarea" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="4" placeholder="Your Title" />
+              <.input field={@post_form[:content]} type="textarea" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="4" placeholder="What's happening?" />
+              <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-3" phx-disable-with="Saving...">Post</button>
+            </.form>
+            <.button phx-click="edit">No Edit</.button>
+          <% else %>
+            <.button phx-click="edit">Edit</.button>
+          <% end %>
+        <% end %>
+        <br>
 
-            <:action :let={comment}>
-                <.button phx-click="comment" phx-value-comment={comment.id}>Comment</.button>
-            </:action>
-          </.table> --%>
         <%= if assigns.current_user !=nil do%>
           <.form for={@form} phx-submit="save">
             <.input field={@form[:content]} type="textarea"placeholder="Your Comment" />
             <button type="submit" class="bg-zinc-900 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded mt-3" phx-disable-with="Saving...">Comment</button>
           </.form>
           <br>
-            <%= if @flag do%>
-              <.button phx-click="unlike">UnLike</.button>
-            <% else %>
-              <.button phx-click="like">Like This Post</.button>
-            <% end %>
+          <%= if @flag do%>
+            <.button phx-click="unlike">UnLike</.button>
+          <% else %>
+            <.button phx-click="like">Like This Post</.button>
+          <% end %>
         <% end %>
-          <%= for comment <- @comments do %>
-            <div class="bg-white p-5 rounded-lg shadow mb-3">
-              <div class="flex justify-between items-center">
-                <div class="flex items-center">
-                  <div class="ml-3">
-                    <h2 class="font-bold text-lg">@<%= comment.user.username %></h2>
-                    <p class="text-gray-400 ml-2"><%= comment_inserted_at(comment) %></p>
 
-                  </div>
+        <%= for comment <- @comments do %>
+          <div class="bg-white p-5 rounded-lg shadow mb-3">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center">
+                <div class="ml-3">
+                  <h2 class="font-bold text-lg">@<%= comment.user.username %></h2>
+                  <p class="text-gray-400 ml-2"><%= comment_inserted_at(comment) %></p>
+
                 </div>
               </div>
-              <p class="mt-3 text-gray-700">
-                <%= comment.content %>
-              </p>
-              <.button phx-click="comment" phx-value-comment={comment.id}>Comment</.button>
             </div>
-          <% end %>
-          <br>
+            <p class="mt-3 text-gray-700">
+              <%= comment.content %>
+            </p>
+            <.button phx-click="comment" phx-value-comment={comment.id}>Comment</.button>
+            <%= if comment.user.id == assigns.current_user.id do %>
+              <.button phx-click="delete">Delete</.button>
+            <% end %>
+          </div>
+        <% end %>
+      <br>
 
       <% else %>
         <div class="text-center py-10">
@@ -82,7 +94,18 @@ defmodule TwitterWeb.PostLive do
                               _ -> post in likes
                             end
                             form = %Twitter.Forum.Comment{} |> Ecto.Changeset.change() |> to_form
-                            {:ok, assign(socket,post: post,form: form,flag: flag,like_num: post.likes, comments: comments,category_name: category_name)}
+                            post_form= %Twitter.Forum.Post{} |> Ecto.Changeset.change() |> to_form
+                            socket=socket
+                              |> assign(:post, post)
+                              |> assign(:form, form)
+                              |> assign(:flag, flag)
+                              |> assign(:like_num, post.likes)
+                              |> assign(:comments, comments)
+                              |> assign(:category_name,category_name)
+                              |> assign(:edit_flag,false)
+                              |> assign(:delete_flag,false)
+                              |> assign(:post_form,post_form)
+                            {:ok,socket}
                   end
     end
 
@@ -129,6 +152,22 @@ defmodule TwitterWeb.PostLive do
     {:noreply, push_navigate(socket, to: ~p"/category/#{socket.assigns.category_name}/posts/#{post.id}/comments/#{comment_params}")}
   end
 
+  def handle_event("edit", _params, socket) do
+    socket=Phoenix.Component.update(socket, :post_form, fn _ -> %Twitter.Forum.Post{} |> Ecto.Changeset.change() |> to_form end)
+    {:noreply, Phoenix.Component.update(socket, :edit_flag, fn x-> !x end)}
+  end
+
+  def handle_event("editpost", %{"post" => post_params}, socket) do
+    post=socket.assigns.post
+    case Twitter.Forum.update_post(post,post_params) do
+      {:ok,newpost} ->
+        IO.inspect(newpost)
+        socket=Phoenix.Component.update(socket, :post, fn _ -> newpost end)
+        socket=Phoenix.Component.update(socket, :post_form, fn _ -> %Twitter.Forum.Post{} |> Ecto.Changeset.change() |> to_form end)
+        {:noreply,socket}
+      {:error,%Ecto.Changeset{} = changeset} -> {:noreply, assign(socket, post_form: to_form(changeset))}
+    end
+  end
   def comment_inserted_at(%Twitter.Forum.Comment{inserted_at: timestamp}) do
 
     Calendar.strftime(timestamp, "%m/%d/%Y %I:%M%p")
