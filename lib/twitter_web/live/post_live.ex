@@ -11,17 +11,19 @@ defmodule TwitterWeb.PostLive do
         <br>
         <p>likes:<%= @post.likes %></p>
 
-        <%= if @post.user_id == assigns.current_user.id do %>
-          <.button phx-click="delete">Delete</.button>
-          <%= if @edit_flag==true do %>
-            <.form for={@post_form} phx-submit="editpost">
-              <.input field={@post_form[:title]} type="textarea" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="4" placeholder="Your Title" />
-              <.input field={@post_form[:content]} type="textarea" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="4" placeholder="What's happening?" />
-              <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-3" phx-disable-with="Saving...">Post</button>
-            </.form>
-            <.button phx-click="edit">No Edit</.button>
-          <% else %>
-            <.button phx-click="edit">Edit</.button>
+        <%= if assigns.current_user != nil do %>
+          <%= if @post.user_id == assigns.current_user.id do %>
+            <.button phx-click="delete">Delete</.button>
+            <%= if @edit_flag==true do %>
+              <.form for={@post_form} phx-submit="editpost">
+                <.input field={@post_form[:title]} type="textarea" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="4" placeholder="Your Title" />
+                <.input field={@post_form[:content]} type="textarea" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="4" placeholder="What's happening?" />
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-3" phx-disable-with="Saving...">Post</button>
+              </.form>
+              <.button phx-click="edit">No Edit</.button>
+            <% else %>
+              <.button phx-click="edit">Edit</.button>
+            <% end %>
           <% end %>
         <% end %>
         <br>
@@ -54,8 +56,10 @@ defmodule TwitterWeb.PostLive do
               <%= comment.content %>
             </p>
             <.button phx-click="comment" phx-value-comment={comment.id}>Comment</.button>
-            <%= if comment.user.id == assigns.current_user.id do %>
-              <.button phx-click="delete">Delete</.button>
+            <%= if assigns.current_user !=nil do%>
+              <%= if comment.user.id == assigns.current_user.id do %>
+                <.button phx-click="delete">Delete</.button>
+              <% end %>
             <% end %>
           </div>
         <% end %>
