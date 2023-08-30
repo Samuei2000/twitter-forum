@@ -6,7 +6,7 @@ defmodule Twitter.Repo.Migrations.CreateComments do
       add :content, :text
       add :likes, :integer
       add :user_id, references(:users, on_delete: :delete_all)
-      add :parent_post_id, references(:posts, on_delete: :delete_all)
+      add :post_id, references(:posts, on_delete: :delete_all)
       add :parent_comment_id, references(:comments, on_delete: :delete_all)
 
       timestamps()
