@@ -13,7 +13,7 @@ defmodule Twitter.Repo.Migrations.CreateComments do
     end
 
     create index(:comments, [:user_id])
-    create index(:comments, [:parent_post_id])
+    create index(:comments, [:post_id])
     create index(:comments, [:parent_comment_id])
   end
 end
