@@ -14,7 +14,7 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 2. Inside of command line shell, run `cmd /K "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64`, otherwise you might not able to compile some modules.  
 
-For more information, have a look at [this]:(https://stackoverflow.com/questions/49471198/how-to-fix-could-not-compile-dependency-bcrypt-elixir-error-on-windows) : How to fix "could not compile dependency :bcrypt_elixir" error on Windows?
+For more information, have a look at [this](https://stackoverflow.com/questions/49471198/how-to-fix-could-not-compile-dependency-bcrypt-elixir-error-on-windows) : How to fix "could not compile dependency :bcrypt_elixir" error on Windows?
 
 3. Then run `mix.bat setup` and  `iex.bat -S mix.bat phx.server`, for Windows might misunderstand `mix` and `iex` command. 
 
