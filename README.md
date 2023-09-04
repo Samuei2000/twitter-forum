@@ -12,7 +12,9 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 ## On Windows systems:
 1. First download and install Visual Studio. For example, 2022 version.
 
-2. Inside of command line shell, run `cmd /K "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64`, otherwise you might not able to compile some modules.
+2. Inside of command line shell, run `cmd /K "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64`, otherwise you might not able to compile some modules.  
+
+For more information, have a look at [this](https://stackoverflow.com/questions/49471198/how-to-fix-could-not-compile-dependency-bcrypt-elixir-error-on-windows) : 
 
 3. Then run `mix.bat setup` and  `iex.bat -S mix.bat phx.server`, for Windows might misunderstand `mix` and `iex` command. 
 
