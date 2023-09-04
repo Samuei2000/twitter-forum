@@ -39,6 +39,7 @@
             <h2 class="font-bold text-lg">@<%= @user.username %></h2>
             <p class="text-gray-400 ml-2"><%= TwitterWeb.CategoryLive.post_inserted_at(post) %></p>
             <h2 class="font-bold text-lg"><%= post.title %></h2>
+            <h2 class="">In category <%=Enum.map(post |> Ecto.assoc(:category) |> Twitter.Repo.all, fn x->x.name end) %></h2>
           </div>
         </div>
       </div>
