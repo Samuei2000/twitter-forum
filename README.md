@@ -9,6 +9,13 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
+## On Windows systems:
+1. First download and install Visual Studio. For example, 2022 version.
+
+2. Inside of command line shell, run `cmd /K "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64`, otherwise you might not able to compile some modules.
+
+3. Then run `mix.bat setup` and  `iex.bat -S mix.bat phx.server`, for Windows might misunderstand `mix` and `iex` command. 
+
 # How to add avatar
 
   * Download and save the image in "priv/static/images/" directory
