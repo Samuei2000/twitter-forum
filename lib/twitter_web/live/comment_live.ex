@@ -33,15 +33,45 @@ defmodule TwitterWeb.CommentLive do
 
   def mount(%{"category_name" => category_name,"post_id" => post_id,"comment_id" => comment_id}, _session, socket) do
     form = %Twitter.Forum.Comment{} |> Ecto.Changeset.change() |> to_form
-    parent_comment=Twitter.Forum.get_comment!(comment_id)
-    child_comments = case parent_comment do
-      nil -> nil
-      _ -> query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.child_comment_id,where: r.parent_comment_id==^parent_comment.id and r.parent_comment_id != r.child_comment_id
-          query = query |> preload(:user)
-           Twitter.Repo.all(query)
+    case Twitter.Forum.get_category_by_category_name(category_name) do
+      nil -> {:ok, push_navigate(socket, to: "/*path")}
+      category -> posts= Twitter.Forum.list_posts_for_category(%Twitter.Forum.Category{} = category)
+                  posts_id= Enum.map(posts,fn x->x.id end)
+                  {post_real_id, ""}=Integer.parse(post_id)
+                  case post_real_id in posts_id do
+                    false ->
+                      {:ok, push_navigate(socket, to: "/*path")}
+                    true -> post= Twitter.Forum.get_post!(post_id)
+                            query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.parent_comment_id,where: r.parent_comment_id==r.child_comment_id and c.post_id==^post_id
+                            query =query |> preload(:user)
+                            comments=Twitter.Repo.all(query)
+                            comments_id=Enum.map(comments,fn x->x.id end)
+                            {comment_real_id,""}=Integer.parse(comment_id)
+                            case comment_real_id in comments_id do
+                              false -> {:ok, push_navigate(socket, to: "/*path")}
+                              true ->
+                                parent_comment=Twitter.Forum.get_comment!(comment_id)
+                                child_comments = case parent_comment do
+                                      nil -> nil
+                                      _ -> query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.child_comment_id,where: r.parent_comment_id==^parent_comment.id and r.parent_comment_id != r.child_comment_id
+                                          query = query |> preload(:user)
+                                          Twitter.Repo.all(query)
+                                end
+                                socket=socket
+                            |> assign(form: form)
+                            |> assign(child_comments: child_comments)
+                            |> assign(post: post)
+                            |> assign(category_name: category_name)
+                            |> assign(parent_comment: parent_comment)
+                        {:ok, socket}
+                            end
+
+
+                  end
+
     end
-    post=Twitter.Forum.get_post!(post_id)
-    {:ok,assign(socket,form: form,child_comments: child_comments,post: post,category_name: category_name,parent_comment: parent_comment)}
+
+    # {:ok,assign(socket,form: form,child_comments: child_comments,post: post,category_name: category_name,parent_comment: parent_comment)}
   end
 
   def handle_event("save", %{"comment"=> comment_params}, socket) do

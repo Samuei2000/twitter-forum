@@ -58,7 +58,7 @@ defmodule TwitterWeb.PostLive do
             <.button phx-click="comment" phx-value-comment={comment.id}>Comment</.button>
             <%= if assigns.current_user !=nil do%>
               <%= if comment.user.id == assigns.current_user.id do %>
-                <.button phx-click="delete">Delete</.button>
+                <.button phx-click="delete_comment" phx-value-comment={comment.id}>Delete</.button>
               <% end %>
             <% end %>
           </div>
@@ -140,7 +140,8 @@ defmodule TwitterWeb.PostLive do
   def handle_event("save", %{"comment"=> comment_params}, socket) do
     user=socket.assigns.current_user
     post=socket.assigns.post
-    case Twitter.Forum.create_comment_for_user(user,comment_params,post.id) do
+    {parent_comment_id, ""}=Integer.parse(comment_params)
+    case Twitter.Forum.create_comment_for_user(user,comment_params,post.id,parent_comment_id) do
       {:ok,comment} ->
         Twitter.Forum.create_child_for_parent(comment,comment)
         socket=Phoenix.Component.update(socket, :form, fn _ -> %Twitter.Forum.Comment{} |> Ecto.Changeset.change() |> to_form end)
@@ -177,6 +178,13 @@ defmodule TwitterWeb.PostLive do
     post=socket.assigns.post
     case Twitter.Forum.delete_post(post) do
       {:ok,%Twitter.Forum.Post{}=deleted_post} -> {:noreply, push_navigate(socket, to: ~p"/category/#{socket.assigns.category_name}")}
+    end
+  end
+
+  def handle_event("delete_comment", %{"comment" => comment_params }, socket) do
+    comment=Twitter.Forum.get_comment!(comment_params)
+    case Twitter.Forum.delete_comment(comment) do
+      {:ok,%Twitter.Forum.Comment{}=deleted_comment} -> {:noreply, push_navigate(socket, to: ~p"/category/#{socket.assigns.category_name}")}
     end
   end
   def comment_inserted_at(%Twitter.Forum.Comment{inserted_at: timestamp}) do
