@@ -10,6 +10,7 @@ defmodule Twitter.Forum.Comment do
     # field :parent_post_id, :id
     belongs_to :post,Twitter.Forum.Post
     #field :parent_comment_id, :id
+    belongs_to :parent, Twitter.Forum.Comment, foreign_key: :parent_comment_id, references: :id
     many_to_many :relationships, Twitter.Forum.Comment, join_through: Twitter.Forum.Relationship
 
     timestamps()
@@ -18,7 +19,7 @@ defmodule Twitter.Forum.Comment do
   @doc false
   def changeset(comment, attrs) do
     comment
-    |> cast(attrs, [:content, :likes])
+    |> cast(attrs, [:content, :likes,:parent_comment_id])
     |> validate_required([:content, :likes])
     |> validate_length(:content, min: 2, max: 200)
   end

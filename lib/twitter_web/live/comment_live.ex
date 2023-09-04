@@ -81,6 +81,7 @@ defmodule TwitterWeb.CommentLive do
     case Twitter.Forum.create_comment_for_user(user,comment_params,post.id) do
       {:ok,%Twitter.Forum.Comment{}=comment}
         -> Twitter.Forum.create_child_for_parent(parent,comment)
+        Twitter.Forum.update_comment(comment,%{parent_comment_id: parent.id})
         socket=Phoenix.Component.update(socket, :form, fn _ -> %Twitter.Forum.Comment{} |> Ecto.Changeset.change() |> to_form end)
         {:noreply,Phoenix.Component.update(socket, :child_comments, fn comments-> [comment | comments] end)}
       {:error, %Ecto.Changeset{} = changeset} ->
