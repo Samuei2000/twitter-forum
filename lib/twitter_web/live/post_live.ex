@@ -93,7 +93,7 @@ defmodule TwitterWeb.PostLive do
                       {:ok, push_navigate(socket, to: "/*path")}
                     true -> post= Twitter.Forum.get_post!(post_id)
                             query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.parent_comment_id,where: r.parent_comment_id==r.child_comment_id and c.post_id==^post_id
-                            query =query |> preload(:user)
+                            query =query |> preload(:user) |> order_by([m], [desc: m.inserted_at, desc: m.id])
                             comments=Twitter.Repo.all(query)
                             likes= case socket.assigns.current_user do
                               nil -> nil
@@ -191,7 +191,7 @@ defmodule TwitterWeb.PostLive do
   def handle_event("delete_comment", %{"comment" => comment_params }, socket) do
     comment=Twitter.Forum.get_comment!(comment_params)
     case Twitter.Forum.delete_comment(comment) do
-      {:ok,%Twitter.Forum.Comment{}=_deleted_comment} -> {:noreply, push_navigate(socket, to: ~p"/category/#{socket.assigns.category_name}")}
+      {:ok,%Twitter.Forum.Comment{}=_deleted_comment} -> {:noreply, push_navigate(socket, to: ~p"/category/#{socket.assigns.category_name}/posts/#{socket.assigns.post.id}")}
     end
   end
   def comment_inserted_at(%Twitter.Forum.Comment{inserted_at: timestamp}) do

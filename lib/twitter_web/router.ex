@@ -30,14 +30,10 @@ defmodule TwitterWeb.Router do
       live "/category/:category_name", CategoryLive
       live "/category/:category_name/posts/:post_id", PostLive
       live "/category/:category_name/posts/:post_id/comments/:comment_id", CommentLive
+      live "/user/:username", ProfileLive
     end
   end
 
-  scope "/", TwitterWeb do
-    pipe_through :browser
-
-    live "/user/:username", ProfileLive
-  end
 
   # Other scopes may use custom stacks.
   # scope "/api", TwitterWeb do

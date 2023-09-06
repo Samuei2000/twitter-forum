@@ -54,7 +54,7 @@ defmodule TwitterWeb.CommentLive do
                                 child_comments = case parent_comment do
                                       nil -> nil
                                       _ -> query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.child_comment_id,where: r.parent_comment_id==^parent_comment.id and r.parent_comment_id != r.child_comment_id
-                                          query = query |> preload(:user)
+                                          query = query |> preload(:user) |> order_by([m], [desc: m.inserted_at, desc: m.id])
                                           Twitter.Repo.all(query)
                                 end
                                 socket=socket
