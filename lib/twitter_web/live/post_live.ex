@@ -1,6 +1,6 @@
 defmodule TwitterWeb.PostLive do
   use TwitterWeb, :live_view
-
+  import Ecto.Query
   def render(assigns) do
     ~H"""
 
@@ -42,6 +42,8 @@ defmodule TwitterWeb.PostLive do
         <% end %>
 
         <%= for comment <- @comments do %>
+          <%!-- query = from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.parent_comment_id,where: r.parent_comment_id==^comment.id
+          child_comments=Twitter.Repo.all(query) --%>
           <div class="bg-white p-5 rounded-lg shadow mb-3">
             <div class="flex justify-between items-center">
               <div class="flex items-center">
@@ -54,6 +56,10 @@ defmodule TwitterWeb.PostLive do
             </div>
             <p class="mt-3 text-gray-700">
               <%= comment.content %>
+            </p>
+            <p class="mt-3 text-green-700">
+              Child comment numbers:<%= length((from c in Twitter.Forum.Comment, join: r in Twitter.Forum.Relationship,on: c.id==r.parent_comment_id,where: r.parent_comment_id==^comment.id) |>
+              Twitter.Repo.all) -1 %>
             </p>
             <.button phx-click="comment" phx-value-comment={comment.id}>Comment</.button>
             <%= if assigns.current_user !=nil do%>
@@ -75,7 +81,7 @@ defmodule TwitterWeb.PostLive do
   end
 
   on_mount {TwitterWeb.UserAuth, :mount_current_user}
-  import Ecto.Query
+
   def mount(%{"category_name" => category_name,"post_id" => post_id}, _session, socket) do
     case Twitter.Forum.get_category_by_category_name(category_name) do
       nil -> {:ok, push_navigate(socket, to: "/*path")}
