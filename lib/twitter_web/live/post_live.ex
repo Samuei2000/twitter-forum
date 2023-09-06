@@ -184,14 +184,14 @@ defmodule TwitterWeb.PostLive do
   def handle_event("delete", _params, socket) do
     post=socket.assigns.post
     case Twitter.Forum.delete_post(post) do
-      {:ok,%Twitter.Forum.Post{}=deleted_post} -> {:noreply, push_navigate(socket, to: ~p"/category/#{socket.assigns.category_name}")}
+      {:ok,%Twitter.Forum.Post{}=_deleted_post} -> {:noreply, push_navigate(socket, to: ~p"/category/#{socket.assigns.category_name}")}
     end
   end
 
   def handle_event("delete_comment", %{"comment" => comment_params }, socket) do
     comment=Twitter.Forum.get_comment!(comment_params)
     case Twitter.Forum.delete_comment(comment) do
-      {:ok,%Twitter.Forum.Comment{}=deleted_comment} -> {:noreply, push_navigate(socket, to: ~p"/category/#{socket.assigns.category_name}")}
+      {:ok,%Twitter.Forum.Comment{}=_deleted_comment} -> {:noreply, push_navigate(socket, to: ~p"/category/#{socket.assigns.category_name}")}
     end
   end
   def comment_inserted_at(%Twitter.Forum.Comment{inserted_at: timestamp}) do

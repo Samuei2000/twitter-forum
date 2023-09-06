@@ -77,7 +77,7 @@ defmodule TwitterWeb.CategoryLive do
 
     category_id=socket.assigns.category_id
     case Twitter.Forum.create_post_for_user(current_user,post_params,category_id) do
-      {:ok, post} ->
+      {:ok, _post} ->
         socket=update(socket, :form, fn _ -> %Twitter.Forum.Post{} |> Ecto.Changeset.change() |> to_form end)
         socket=update(socket, :empty, fn _ -> false end)
         # socket=stream_insert(socket, :posts, post, at: 0)
